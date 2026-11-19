@@ -1,0 +1,36 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django stuff:
+*.log
+db.sqlite3
+media/
+staticfiles/
+*.pot
+
+# Django collected static (si usas collectstatic)
+# NO ignorar static/ de las apps, solo staticfiles/
+# static/
+
+# Envs
+.env
+.env.*
+venv/
+.venv/
+ENV/
+env/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage / testing
+.coverage
+.tox/
+pytest_cache/

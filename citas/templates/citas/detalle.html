@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block titulo %}Detalle cita{% endblock %}
+{% block contenido %}
+<h1 class="h4 mb-3">Detalle de cita</h1>
+<dl class="row">
+  <dt class="col-sm-3">Fecha/Hora</dt><dd class="col-sm-9">{{ cita.fecha_hora|date:"d-m-Y H:i" }}</dd>
+  <dt class="col-sm-3">Mascota</dt><dd class="col-sm-9">{{ cita.mascota.nombre }}</dd>
+  <dt class="col-sm-3">Dueño</dt><dd class="col-sm-9">{{ cita.dueno.username }} ({{ cita.dueno.email }})</dd>
+  <dt class="col-sm-3">Clínica</dt><dd class="col-sm-9">{% if cita.clinica %}{{ cita.clinica.nombre }}{% else %}—{% endif %}</dd>
+  <dt class="col-sm-3">Estado</dt><dd class="col-sm-9">{{ cita.estado }}</dd>
+  <dt class="col-sm-3">Veterinario</dt><dd class="col-sm-9">{% if cita.veterinario %}{{ cita.veterinario.username }}{% else %}—{% endif %}</dd>
+  <dt class="col-sm-3">Motivo</dt><dd class="col-sm-9">{{ cita.motivo|default:"—" }}</dd>
+  <dt class="col-sm-3">Notas</dt><dd class="col-sm-9">{{ cita.notas|linebreaksbr|default:"—" }}</dd>
+</dl>
+{% endblock %}

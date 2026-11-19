@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block titulo %}{% if object %}Editar cita{% else %}Nueva cita{% endif %}{% endblock %}
+
+{% block contenido %}
+<div class="container my-4">
+  <h1 class="h4 mb-4">{% if object %}Editar cita{% else %}Agendar nueva cita{% endif %}</h1>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <form method="post" novalidate class="card shadow-sm">
+        {% csrf_token %}
+
+        <div class="card-body p-4">
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger mb-3">
+              <strong>Error:</strong> {{ form.non_field_errors }}
+            </div>
+          {% endif %}
+
+          <div class="row g-3">
+            <!-- Mascota -->
+            <div class="col-12">
+              <label class="form-label" for="{{ form.mascota.id_for_label }}">
+                <strong>Mascota *</strong>
+              </label>
+              {{ form.mascota }}
+              {% if form.mascota.errors %}
+                <div class="alert alert-danger small mt-1">{{ form.mascota.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Clínica -->
+            <div class="col-12">
+              <label class="form-label" for="{{ form.clinica.id_for_label }}">Clínica</label>
+              {{ form.clinica }}
+              {% if form.clinica.errors %}
+                <div class="alert alert-danger small mt-1">{{ form.clinica.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Fecha y hora -->
+            <div class="col-12">
+              <label class="form-label" for="{{ form.fecha_hora.id_for_label }}">
+                <strong>Fecha y hora *</strong>
+              </label>
+              {{ form.fecha_hora }}
+              <small class="text-muted d-block mt-2">Debe ser una fecha y hora futura (o pasada si marca la cita como completada)</small>
+              {% if form.fecha_hora.errors %}
+                <div class="alert alert-danger small mt-1">{{ form.fecha_hora.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Motivo -->
+            <div class="col-12">
+              <label class="form-label" for="{{ form.motivo.id_for_label }}">
+                <strong>Motivo de la cita *</strong>
+              </label>
+              {{ form.motivo }}
+              {% if form.motivo.errors %}
+                <div class="alert alert-danger small mt-1">{{ form.motivo.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Notas -->
+            <div class="col-12">
+              <label class="form-label" for="{{ form.notas.id_for_label }}">Notas adicionales</label>
+              {{ form.notas }}
+              {% if form.notas.errors %}
+                <div class="alert alert-danger small mt-1">{{ form.notas.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Marcar como completada -->
+            <div class="col-12">
+              <div class="card bg-light border-success">
+                <div class="card-body">
+                  <div class="form-check">
+                    {{ form.marcar_como_completada }}
+                    <label class="form-check-label" for="{{ form.marcar_como_completada.id_for_label }}">
+                      <strong>{{ form.marcar_como_completada.label }}</strong>
+                    </label>
+                  </div>
+                  <small class="text-muted d-block mt-2">
+                    {{ form.marcar_como_completada.help_text }}
+                  </small>
+                  {% if form.marcar_como_completada.errors %}
+                    <div class="alert alert-danger small mt-2">{{ form.marcar_como_completada.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-footer bg-light d-flex justify-content-between">
+          <a class="btn btn-outline-secondary" href="{% url 'citas:lista' %}">Cancelar</a>
+          <button class="btn btn-success btn-lg" type="submit">
+            {% if object %}
+              <i class="bi bi-check-circle"></i> Guardar cambios
+            {% else %}
+              <i class="bi bi-calendar-plus"></i> Agendar cita
+            {% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

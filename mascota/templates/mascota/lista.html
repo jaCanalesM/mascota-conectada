@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block titulo %}{% if es_admin_o_vet %}Mascotas{% else %}Mis Mascotas{% endif %}{% endblock %}
+{% block contenido %}
+
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h4 m-0">
+      {% if es_admin_o_vet %}
+        Mascotas Registradas
+      {% else %}
+        Mis Mascotas
+      {% endif %}
+    </h1>
+    {% if not es_admin_o_vet %}
+      <a href="{% url 'mascota:crear' %}" class="btn btn-lg" style="background-color: #27d88b; color: white; border: none;">
+        Registrar mascota
+      </a>
+    {% endif %}
+  </div>
+
+  {% if es_admin_o_vet %}
+    <!-- Filtros avanzados para Admin/Vet -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="card-title mb-3">Filtros de Búsqueda</h6>
+        <form method="get">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label">Búsqueda general</label>
+              <input type="search" name="q" class="form-control" placeholder="Nombre, raza, dueño..." value="{{ q }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Especie</label>
+              <input type="text" name="especie" class="form-control" placeholder="Ej: Perro, Gato..." value="{{ especie_actual }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Raza</label>
+              <input type="text" name="raza" class="form-control" placeholder="Ej: Labrador..." value="{{ raza_actual }}">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Sexo</label>
+              <select name="sexo" class="form-select">
+                <option value="">Todos</option>
+                <option value="M" {% if sexo_actual == 'M' %}selected{% endif %}>Macho</option>
+                <option value="H" {% if sexo_actual == 'H' %}selected{% endif %}>Hembra</option>
+              </select>
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+              <button type="submit" class="btn btn-success w-100">Filtrar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  {% else %}
+    <!-- Buscador simple para dueños -->
+    <form class="mb-4" method="get">
+      <div class="input-group">
+        <input class="form-control" type="search" name="q"
+            placeholder="Buscar por nombre, raza o especie..."
+            value="{{ q }}">
+        <button class="btn btn-outline-secondary" type="submit">
+          Buscar
+        </button>
+      </div>
+    </form>
+
+    <!-- Mensaje informativo para dueños -->
+    <div class="alert alert-info">
+      <strong>Importante:</strong> No puedes editar ni eliminar mascotas directamente.
+      Para solicitar cambios o eliminación, usa el menú <a href="{% url 'solicitudes:crear' %}" class="alert-link">Solicitudes</a>.
+    </div>
+  {% endif %}
+
+  <!-- Lista de mascotas en cards -->
+  {% if mascotas %}
+    <div class="row g-4">
+      {% for m in mascotas %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm">
+            <!-- Foto -->
+            {% if m.foto %}
+              <img src="{{ m.foto.url }}" alt="{{ m.nombre }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+            {% else %}
+              <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                <div class="text-center">
+                  <i class="bi bi-image" style="font-size: 3rem; color: #ccc;"></i>
+                  <p class="text-muted mt-2">Sin foto</p>
+                </div>
+              </div>
+            {% endif %}
+
+            <!-- Contenido -->
+            <div class="card-body">
+              <h5 class="card-title">{{ m.nombre }}</h5>
+              <p class="card-text text-muted small">
+                <strong>Especie:</strong> {{ m.especie }}<br>
+                <strong>Raza:</strong> {{ m.raza|default:"—" }}<br>
+                <strong>Sexo:</strong> {{ m.get_sexo_display|default:"—" }}
+              </p>
+              {% if m.fecha_nacimiento %}
+                <p class="card-text text-muted small">
+                  <strong>Nacimiento:</strong> {{ m.fecha_nacimiento|date:"d/m/Y" }}
+                </p>
+              {% endif %}
+
+              {% if es_admin_o_vet %}
+                <hr>
+                <p class="card-text text-muted small">
+                  <strong>Dueño:</strong> {{ m.DUENO.get_full_name|default:m.DUENO.username }}<br>
+                  <strong>Email:</strong> {{ m.DUENO.email }}
+                </p>
+              {% endif %}
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="card-footer bg-light">
+              {% if es_admin_o_vet %}
+                <!-- Admin/Vet solo pueden ver detalles -->
+                <a class="btn btn-sm btn-outline-success w-100" href="{% url 'mascota:detalle' m.id %}">
+                  Ver Detalles
+                </a>
+              {% else %}
+                <!-- Dueños solo pueden ver -->
+                <a class="btn btn-sm btn-outline-success w-100" href="{% url 'mascota:detalle' m.id %}">
+                  Ver Detalles
+                </a>
+                <small class="text-muted d-block mt-2 text-center">
+                  Para editar/eliminar usa <a href="{% url 'solicitudes:crear' %}">Solicitudes</a>
+                </small>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Paginación -->
+    {% if is_paginated %}
+      <nav class="mt-4" aria-label="Paginación">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ q }}&especie={{ especie_actual }}&raza={{ raza_actual }}&sexo={{ sexo_actual }}">
+                Anterior
+              </a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+          {% endif %}
+
+          <li class="page-item disabled">
+            <span class="page-link">
+              Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+            </span>
+          </li>
+
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ q }}&especie={{ especie_actual }}&raza={{ raza_actual }}&sexo={{ sexo_actual }}">
+                Siguiente
+              </a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+
+  {% else %}
+    <div class="alert alert-info text-center py-5">
+      <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+      <p class="mt-3 mb-0">
+        <strong>No tienes mascotas registradas.</strong><br>
+        <a href="{% url 'mascota:crear' %}" class="btn btn-success btn-sm mt-2">
+          Registra tu primera mascota
+        </a>
+      </p>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}
